@@ -45,10 +45,7 @@ class DynamicPortfolioOptimizer:
         """Инициализация базы инструментов"""
         return {
             # Рублевые инструменты
-            'ОФЗ-25083': {'type': 'ОФЗ', 'yield': 15.2, 'duration': 1.8, 'risk': 'низкий', 
-                         'tax_free': True, 'currency': 'RUB', 'liquidity': 'высокая'},
-            'ОФЗ-26231': {'type': 'ОФЗ', 'yield': 14.8, 'duration': 2.5, 'risk': 'низкий', 
-                         'tax_free': True, 'currency': 'RUB', 'liquidity': 'высокая'},
+            # ОФЗ bonds removed - use real current bonds from Moscow Exchange
             
             'Вклад Сбер ЦБ-0.5%': {'type': 'Депозит', 'yield': 16.0, 'duration': 1.0, 
                                   'risk': 'низкий', 'tax_free': False, 'currency': 'RUB',
