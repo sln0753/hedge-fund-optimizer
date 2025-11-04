@@ -87,9 +87,21 @@ class DynamicPortfolioOptimizer:
                                   'risk': 'низкий', 'tax_free': False, 'currency': 'RUB',
                                   'liquidity': 'низкая', 'cbr_linked': True},  # Обновлено: КС 16.5% - 0.5%
             
-            'Фонд РосОблигаций': {'type': 'БПИФ', 'yield': 13.5, 'duration': 0, 
-                                'risk': 'низкий', 'tax_free': False, 'currency': 'RUB',
-                                'liquidity': 'высокая', 'management_fee': 0.5},
+            'Сберегательный фонд УК Первая': {
+                'type': 'БПИФ',
+                'ticker': 'SBMM',
+                'yield': 15.5,  # Follows RUONIA (≈ CBR - 1%)
+                'duration': 0,
+                'risk': 'низкий',
+                'tax_free': True,  # TAX-FREE after 3 years! Major advantage!
+                'currency': 'RUB',
+                'liquidity': 'высокая',
+                'management_fee': 0.2,  # Very low: 0.2%
+                'total_expenses': 0.299,  # Total: 0.299% per year
+                'ruonia_linked': True,  # Follows RUONIA overnight rate
+                'tax_free_period': 3,  # Years to hold for tax exemption
+                'tax_free_limit': 3000000  # Max profit exempt (rubles/year)
+            },
             
             'Структурная облигация Сбер': {
                 'type': 'Структурная облигация', 
