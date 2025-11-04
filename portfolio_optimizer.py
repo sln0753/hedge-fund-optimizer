@@ -19,7 +19,7 @@ class DynamicPortfolioOptimizer:
         self.initial_usd_amount = 10000
         self.current_usd_rub = 81.17  # Обновлено: текущий курс по прогнозу
         self.monthly_income_target = 50000
-        self.years = 5  # горизонт планирования
+        self.years = 3  # Горизонт планирования: 3 года (для налоговой льготы SBMM фонда)
         
         # Сценарии изменения тела инвестиций (% в год)
         self.capital_growth_scenarios = {
