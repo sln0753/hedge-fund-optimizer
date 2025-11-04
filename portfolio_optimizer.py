@@ -20,6 +20,7 @@ class DynamicPortfolioOptimizer:
         self.current_usd_rub = 81.17  # Обновлено: текущий курс по прогнозу
         self.monthly_income_target = 50000
         self.years = 3  # Горизонт планирования: 3 года (для налоговой льготы SBMM фонда)
+        self.usd_spread_pct = 0.5  # Спред на покупку/продажу USD (% от курса) - типично 0.1-0.5% через брокера
         
         # Сценарии изменения тела инвестиций (% в год)
         self.capital_growth_scenarios = {
@@ -150,8 +151,16 @@ class DynamicPortfolioOptimizer:
             fx_year_start = self.fx_scenarios[scenario][min(year, len(self.fx_scenarios[scenario])-1)]
             # Курс на КОНЕЦ года (текущий год)
             fx_year_end = self.fx_scenarios[scenario][min(year + 1, len(self.fx_scenarios[scenario])-1)]
-            # Прирост ТОЛЬКО за этот год (в рублях!)
-            fx_gain = (fx_year_end - fx_year_start) / fx_year_start * 100
+            
+            # Учитываем bid-ask spread (стоимость конвертации)
+            # При покупке USD: платим fx × (1 + spread/2)
+            # При продаже USD: получаем fx × (1 - spread/2)
+            # Эффективный курс с учетом спреда:
+            fx_buy_rate = fx_year_start * (1 + self.usd_spread_pct / 200)  # Покупка в начале года
+            fx_sell_rate = fx_year_end * (1 - self.usd_spread_pct / 200)   # Продажа в конце года
+            
+            # Прирост ТОЛЬКО за этот год с учетом спреда (в рублях!)
+            fx_gain = (fx_sell_rate - fx_buy_rate) / fx_buy_rate * 100
             after_tax += fx_gain
         
         return max(after_tax, 0)  # Доходность не может быть отрицательной
