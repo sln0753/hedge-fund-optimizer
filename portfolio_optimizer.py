@@ -55,11 +55,19 @@ class DynamicPortfolioOptimizer:
                                 'risk': 'низкий', 'tax_free': False, 'currency': 'RUB',
                                 'liquidity': 'высокая', 'management_fee': 0.5},
             
-            'Структурная облигация Сбер': {'type': 'Структурная облигация', 
-                                         'yield': 15.36, 'duration': 3.27, 
-                                         'risk': 'средний', 'tax_free': False, 
-                                         'currency': 'RUB', 'liquidity': 'средняя',
-                                         'monthly_coupon': True},
+            'Структурная облигация Сбер': {
+                'type': 'Структурная облигация', 
+                'yield': 15.0,  # Average annual (from forecast: ~1.25% × 12)
+                'duration': 3.27, 
+                'risk': 'средний', 
+                'tax_free': False, 
+                'currency': 'RUB', 
+                'liquidity': 'средняя',
+                'monthly_coupon': True,
+                'variable_coupon': True,  # NEW: Coupons vary monthly
+                # Monthly coupon forecast (SBERBCMI Index) Nov 2025 - Oct 2026
+                'coupon_forecast': [1.01, 1.45, 1.55, 1.27, 1.43, 1.11, 0.96, 1.25, 1.49, 1.23, 1.24, 1.00]  # %/month
+            },
             
             # Валютные инструменты
             # Eurobonds and USD deposits removed - low yields, not attractive now
