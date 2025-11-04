@@ -50,7 +50,7 @@ def check_password():
         
         st.text_input("Username", key="username", placeholder="Enter username")
         st.text_input("Password", type="password", key="password", placeholder="Enter password")
-        st.button("Login", on_click=password_entered, use_container_width=True)
+        st.button("Login", on_click=password_entered, width='stretch')
         
         if "password_correct" in st.session_state and not st.session_state["password_correct"]:
             st.error("😕 Username or password incorrect")
@@ -150,7 +150,7 @@ with st.sidebar:
         value=optimizer.years
     )
     
-    if st.button("💾 Применить настройки", use_container_width=True):
+    if st.button("💾 Применить настройки", width='stretch'):
         optimizer.initial_capital_rub = initial_capital_rub
         optimizer.initial_usd_amount = initial_usd_amount
         optimizer.current_usd_rub = current_usd_rub
@@ -263,7 +263,7 @@ with tab1:
     # Display table
     st.dataframe(
         df_allocation[['Инструмент', 'Доля', 'Сумма', 'Тип', 'Доходность', 'После налогов', 'Налог']],
-        use_container_width=True,
+        width='stretch',
         hide_index=True
     )
     
@@ -278,7 +278,7 @@ with tab1:
             names='Инструмент',
             title='Доли инструментов в портфеле'
         )
-        st.plotly_chart(fig_pie, use_container_width=True)
+        st.plotly_chart(fig_pie, width='stretch')
     
     with col2:
         st.subheader("Распределение по типам")
@@ -290,7 +290,7 @@ with tab1:
             names='Тип',
             title='Распределение по типам инструментов'
         )
-        st.plotly_chart(fig_type, use_container_width=True)
+        st.plotly_chart(fig_type, width='stretch')
 
 # Tab 2: Forecast
 with tab2:
@@ -345,7 +345,7 @@ with tab2:
         yaxis_title='Капитал (руб)',
         hovermode='x unified'
     )
-    st.plotly_chart(fig_forecast, use_container_width=True)
+    st.plotly_chart(fig_forecast, width='stretch')
     
     # Income chart
     fig_income = go.Figure()
@@ -367,7 +367,7 @@ with tab2:
         yaxis_title='Доход (руб)',
         hovermode='x unified'
     )
-    st.plotly_chart(fig_income, use_container_width=True)
+    st.plotly_chart(fig_income, width='stretch')
     
     # Table
     st.dataframe(df_forecast.style.format({
@@ -375,7 +375,7 @@ with tab2:
         'Доходность (%)': '{:.1f}%',
         'Месячный доход (руб)': '{:,.0f}',
         'Покрытие цели (%)': '{:.0f}%'
-    }), use_container_width=True, hide_index=True)
+    }), width='stretch', hide_index=True)
 
 # Tab 3: Monthly Payments
 with tab3:
@@ -426,13 +426,13 @@ with tab3:
         color_continuous_scale='Greens'
     )
     fig_monthly.update_layout(showlegend=False)
-    st.plotly_chart(fig_monthly, use_container_width=True)
+    st.plotly_chart(fig_monthly, width='stretch')
     
     # Table
     st.dataframe(df_monthly.style.format({
         'Месячный доход': '{:,.0f} руб',
         'Годовой доход': '{:,.0f} руб'
-    }), use_container_width=True, hide_index=True)
+    }), width='stretch', hide_index=True)
     
     # Payment schedule
     with st.expander("📅 График выплат по инструментам"):
@@ -482,7 +482,7 @@ with tab4:
         color='Валюта',
         color_discrete_map={'RUB': '#1f77b4', 'USD': '#2ca02c'}
     )
-    st.plotly_chart(fig_currency, use_container_width=True)
+    st.plotly_chart(fig_currency, width='stretch')
     
     # Risk distribution
     st.subheader("Распределение по уровню риска")
@@ -508,9 +508,9 @@ with tab4:
             color='Риск',
             color_discrete_map={'Низкий': '#28a745', 'Средний': '#ffc107', 'Высокий': '#dc3545'}
         )
-        st.plotly_chart(fig_risk, use_container_width=True)
+        st.plotly_chart(fig_risk, width='stretch')
     with col2:
-        st.dataframe(risk_df, use_container_width=True, hide_index=True)
+        st.dataframe(risk_df, width='stretch', hide_index=True)
     
     # Tax efficiency
     st.subheader("Налоговая эффективность")
@@ -566,7 +566,7 @@ with tab5:
         'Ср. месячный доход': '{:,.0f} руб',
         'Итоговый капитал': '{:,.0f} руб',
         'Покрытие расходов': '{:.0f}%'
-    }), use_container_width=True, hide_index=True)
+    }), width='stretch', hide_index=True)
     
     # Comparison charts
     col1, col2 = st.columns(2)
@@ -580,7 +580,7 @@ with tab5:
             color='Ср. месячный доход',
             color_continuous_scale='Blues'
         )
-        st.plotly_chart(fig_comp_income, use_container_width=True)
+        st.plotly_chart(fig_comp_income, width='stretch')
     
     with col2:
         fig_comp_capital = px.bar(
@@ -591,7 +591,7 @@ with tab5:
             color='Итоговый капитал',
             color_continuous_scale='Greens'
         )
-        st.plotly_chart(fig_comp_capital, use_container_width=True)
+        st.plotly_chart(fig_comp_capital, width='stretch')
 
 # Tab 6: Instruments
 with tab6:
@@ -618,7 +618,7 @@ with tab6:
         })
     
     df_instruments = pd.DataFrame(instruments_list)
-    st.dataframe(df_instruments, use_container_width=True, hide_index=True)
+    st.dataframe(df_instruments, width='stretch', hide_index=True)
     
     # Show details for each instrument
     st.subheader("Детальная информация по инструментам")
@@ -682,7 +682,7 @@ with tab7:
         })
     
     df_cbr = pd.DataFrame(cbr_data)
-    st.dataframe(df_cbr, use_container_width=True, hide_index=True)
+    st.dataframe(df_cbr, width='stretch', hide_index=True)
     
     # CBR chart
     cbr_chart_data = []
@@ -704,7 +704,7 @@ with tab7:
         title='Прогноз ключевой ставки ЦБ РФ',
         markers=True
     )
-    st.plotly_chart(fig_cbr, use_container_width=True)
+    st.plotly_chart(fig_cbr, width='stretch')
     
     st.divider()
     
@@ -730,7 +730,7 @@ with tab7:
         })
     
     df_fx = pd.DataFrame(fx_data)
-    st.dataframe(df_fx, use_container_width=True, hide_index=True)
+    st.dataframe(df_fx, width='stretch', hide_index=True)
     
     # FX chart
     fx_chart_data = []
@@ -752,7 +752,7 @@ with tab7:
         title='Прогноз курса USD/RUB',
         markers=True
     )
-    st.plotly_chart(fig_fx, use_container_width=True)
+    st.plotly_chart(fig_fx, width='stretch')
     
     st.divider()
     
@@ -783,7 +783,7 @@ with tab7:
                 })
             
             df_coupons = pd.DataFrame(coupon_data)
-            st.dataframe(df_coupons, use_container_width=True, hide_index=True)
+            st.dataframe(df_coupons, width='stretch', hide_index=True)
             
             # Coupon bar chart
             fig_coupons = px.bar(
@@ -796,7 +796,7 @@ with tab7:
                 color_continuous_scale='Greens'
             )
             fig_coupons.update_xaxes(tickangle=45)
-            st.plotly_chart(fig_coupons, use_container_width=True)
+            st.plotly_chart(fig_coupons, width='stretch')
             
             # Statistics
             col1, col2, col3, col4 = st.columns(4)
