@@ -2,10 +2,18 @@ import pandas as pd
 import numpy as np
 from scipy.optimize import minimize
 import warnings
+import os
 warnings.filterwarnings('ignore')
 
+# Try to import YAML loader
+try:
+    from config_loader import ConfigLoader
+    YAML_AVAILABLE = True
+except ImportError:
+    YAML_AVAILABLE = False
+
 class DynamicPortfolioOptimizer:
-    def __init__(self):
+    def __init__(self, use_yaml_config=True):
         # Начальные параметры (можно редактировать)
         self.initial_capital_rub = 4000000
         self.initial_usd_amount = 10000
@@ -22,6 +30,34 @@ class DynamicPortfolioOptimizer:
             'increase_10': 0.1    # увеличивается 10% в год
         }
         
+        # Load configuration from YAML files if available
+        self.use_yaml = use_yaml_config and YAML_AVAILABLE
+        
+        if self.use_yaml:
+            try:
+                self.config_loader = ConfigLoader()
+                # Load forecasts from YAML
+                self.cbr_scenarios = self.config_loader.get_cbr_scenarios()
+                self.fx_scenarios = self.config_loader.get_fx_scenarios()
+                # Load instruments from YAML
+                self.instruments = self.config_loader.load_instruments()
+                # Update instruments with forecast data
+                for name, data in self.instruments.items():
+                    if data.get('variable_coupon', False):
+                        coupons = self.config_loader.get_structured_bond_coupons(name)
+                        if coupons:
+                            self.instruments[name]['coupon_forecast'] = coupons
+                print("✅ Loaded configuration from YAML files")
+            except Exception as e:
+                print(f"⚠️ Warning: Could not load YAML configs: {e}")
+                print("   Falling back to hardcoded values")
+                self.use_yaml = False
+                self._load_hardcoded_config()
+        else:
+            self._load_hardcoded_config()
+    
+    def _load_hardcoded_config(self):
+        """Load hardcoded configuration (fallback)"""
         # Прогнозные сценарии ЦБ РФ (обновлено по реальному прогнозу)
         # Источник: Базовый прогноз от профессиональных аналитиков
         self.cbr_scenarios = {
