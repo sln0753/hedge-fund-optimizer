@@ -22,3 +22,4 @@ cd "$(dirname "$0")"
 # Launch Streamlit
 streamlit run web_app.py
 
+

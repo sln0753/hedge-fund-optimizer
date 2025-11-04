@@ -140,3 +140,4 @@ if __name__ == "__main__":
     # Compare scenarios
     compare_scenarios_updated()
 
+

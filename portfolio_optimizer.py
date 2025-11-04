@@ -62,12 +62,9 @@ class DynamicPortfolioOptimizer:
                                          'monthly_coupon': True},
             
             # Валютные инструменты
-            'Сбер-еврообл-2025': {'type': 'Еврооблигация', 'yield': 5.5, 'duration': 2.0, 
-                                 'risk': 'средний', 'tax_free': False, 'currency': 'USD'},
-            'Депозит Сбер USD': {'type': 'Депозит', 'yield': 3.0, 'duration': 1.0, 
-                               'risk': 'низкий', 'tax_free': False, 'currency': 'USD'},
-            'USD CASH': {'type': 'Валюта', 'yield': 0.0, 'duration': 0, 
-                        'risk': 'низкий', 'tax_free': True, 'currency': 'USD'}
+            # Eurobonds and USD deposits removed - low yields, not attractive now
+            'USD CASH': {'type': 'Валюта', 'yield': 0.1, 'duration': 0, 
+                        'risk': 'низкий', 'tax_free': True, 'currency': 'USD'}  # Keep as currency hedge (0.1% nominal to avoid numerical issues)
         }
     
     def calculate_after_tax_yield(self, instrument, base_yield, year, scenario):
@@ -215,9 +212,9 @@ class DynamicPortfolioOptimizer:
             elif instrument_data['currency'] == 'USD':
                 bounds.append((0, 0.4))  # максимум 40% в валюте
             elif instrument_data['risk'] == 'низкий':
-                bounds.append((0.05, 0.4))  # минимум 5% в надежные инструменты
+                bounds.append((0, 0.5))  # гибкие границы для надежных инструментов
             else:
-                bounds.append((0, 0.3))
+                bounds.append((0, 0.4))
         
         # Начальное приближение (равномерное распределение)
         x0 = np.array([1/n_instruments] * n_instruments)

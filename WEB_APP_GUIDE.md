@@ -344,3 +344,4 @@ The app includes custom CSS for better visual hierarchy and readability
 *Created with Streamlit + Plotly for interactive financial analysis*  
 *Version 1.0 - November 2, 2025*
 
+
