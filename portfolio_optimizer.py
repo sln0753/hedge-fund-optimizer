@@ -144,10 +144,14 @@ class DynamicPortfolioOptimizer:
             after_tax = base_yield * 0.87  # НДФЛ 13%
         
         # Для валютных инструментов учитываем курс
+        # ИСПРАВЛЕНО: Расчет FX gain для конкретного года (не кумулятивно!)
         if instrument_data['currency'] == 'USD':
-            fx_current = self.fx_scenarios[scenario][0]
-            fx_future = self.fx_scenarios[scenario][min(year, len(self.fx_scenarios[scenario])-1)]
-            fx_gain = (fx_future - fx_current) / fx_current * 100
+            # Курс на НАЧАЛО года (предыдущий год)
+            fx_year_start = self.fx_scenarios[scenario][min(year, len(self.fx_scenarios[scenario])-1)]
+            # Курс на КОНЕЦ года (текущий год)
+            fx_year_end = self.fx_scenarios[scenario][min(year + 1, len(self.fx_scenarios[scenario])-1)]
+            # Прирост ТОЛЬКО за этот год (в рублях!)
+            fx_gain = (fx_year_end - fx_year_start) / fx_year_start * 100
             after_tax += fx_gain
         
         return max(after_tax, 0)  # Доходность не может быть отрицательной
