@@ -214,12 +214,14 @@ with col4:
 st.divider()
 
 # Tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📊 Рекомендации", 
     "📈 Прогноз", 
     "💵 Месячные выплаты",
     "🎯 Распределение",
-    "📋 Сравнение сценариев"
+    "📋 Сравнение сценариев",
+    "🏦 Инструменты",
+    "📅 Прогнозы"
 ])
 
 # Tab 1: Recommendations
@@ -590,6 +592,231 @@ with tab5:
             color_continuous_scale='Greens'
         )
         st.plotly_chart(fig_comp_capital, use_container_width=True)
+
+# Tab 6: Instruments
+with tab6:
+    st.subheader("🏦 База инвестиционных инструментов")
+    
+    st.info("📝 Для редактирования инструментов откройте файл: `instruments_config.yaml`")
+    
+    # Display all instruments
+    instruments_list = []
+    for name, data in optimizer.instruments.items():
+        instruments_list.append({
+            'Инструмент': name,
+            'Тип': data['type'],
+            'Доходность': f"{data['yield']:.2f}%",
+            'Валюта': data['currency'],
+            'Риск': data.get('risk', 'низкий'),
+            'Ликвидность': data.get('liquidity', 'высокая'),
+            'Налог': '0%' if data.get('tax_free') else '13% НДФЛ',
+            'Особенности': ', '.join([
+                'CBR-linked' if data.get('cbr_linked') else '',
+                'Переменные купоны' if data.get('variable_coupon') else '',
+                'Месячные выплаты' if data.get('monthly_coupon') else ''
+            ]).strip(', ') or '-'
+        })
+    
+    df_instruments = pd.DataFrame(instruments_list)
+    st.dataframe(df_instruments, use_container_width=True, hide_index=True)
+    
+    # Show details for each instrument
+    st.subheader("Детальная информация по инструментам")
+    
+    for name, data in optimizer.instruments.items():
+        with st.expander(f"📄 {name}"):
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("**Основные параметры:**")
+                st.write(f"• Тип: {data['type']}")
+                st.write(f"• Базовая доходность: {data['yield']:.2f}%")
+                st.write(f"• Валюта: {data['currency']}")
+                st.write(f"• Риск: {data.get('risk', 'низкий')}")
+            
+            with col2:
+                st.markdown("**Дополнительно:**")
+                st.write(f"• Ликвидность: {data.get('liquidity', 'высокая')}")
+                st.write(f"• Налог: {'Освобожден' if data.get('tax_free') else '13% НДФЛ'}")
+                st.write(f"• Срок (duration): {data.get('duration', 0)} лет")
+            
+            # Special features
+            if data.get('cbr_linked'):
+                st.success("⚡ Доходность автоматически следует за ставкой ЦБ РФ")
+            
+            if data.get('variable_coupon'):
+                st.warning("📊 Переменные месячные купоны (см. вкладку 'Прогнозы')")
+            
+            if data.get('description'):
+                st.markdown("**Описание:**")
+                st.write(data['description'])
+    
+    st.divider()
+    st.info("💡 Чтобы добавить новый инструмент, отредактируйте `instruments_config.yaml` и выполните `git push`")
+
+# Tab 7: Forecasts
+with tab7:
+    st.subheader("📅 Прогнозные данные")
+    
+    st.info("📝 Для редактирования прогнозов откройте файл: `forecasts_config.yaml`")
+    
+    # CBR Rate Forecasts
+    st.subheader("1️⃣ Прогнозы ключевой ставки ЦБ РФ")
+    
+    cbr_data = []
+    for scenario_name, rates in optimizer.cbr_scenarios.items():
+        scenario_display = {
+            'base': 'Базовый',
+            'pessimistic': 'Пессимистичный',
+            'optimistic': 'Оптимистичный'
+        }.get(scenario_name, scenario_name)
+        
+        cbr_data.append({
+            'Сценарий': scenario_display,
+            'Сейчас': f"{rates[0]:.1f}%",
+            'Год 1': f"{rates[1]:.1f}%",
+            'Год 2': f"{rates[2]:.1f}%",
+            'Год 3': f"{rates[3]:.1f}%",
+            'Год 4': f"{rates[4]:.1f}%",
+            'Год 5': f"{rates[5]:.1f}%"
+        })
+    
+    df_cbr = pd.DataFrame(cbr_data)
+    st.dataframe(df_cbr, use_container_width=True, hide_index=True)
+    
+    # CBR chart
+    cbr_chart_data = []
+    for scenario_name, rates in optimizer.cbr_scenarios.items():
+        scenario_display = {'base': 'Базовый', 'pessimistic': 'Пессимистичный', 'optimistic': 'Оптимистичный'}.get(scenario_name, scenario_name)
+        for year, rate in enumerate(rates):
+            cbr_chart_data.append({
+                'Год': year,
+                'Ставка (%)': rate,
+                'Сценарий': scenario_display
+            })
+    
+    df_cbr_chart = pd.DataFrame(cbr_chart_data)
+    fig_cbr = px.line(
+        df_cbr_chart,
+        x='Год',
+        y='Ставка (%)',
+        color='Сценарий',
+        title='Прогноз ключевой ставки ЦБ РФ',
+        markers=True
+    )
+    st.plotly_chart(fig_cbr, use_container_width=True)
+    
+    st.divider()
+    
+    # USD/RUB Forecasts
+    st.subheader("2️⃣ Прогнозы курса USD/RUB")
+    
+    fx_data = []
+    for scenario_name, rates in optimizer.fx_scenarios.items():
+        scenario_display = {
+            'base': 'Базовый',
+            'pessimistic': 'Пессимистичный',
+            'optimistic': 'Оптимистичный'
+        }.get(scenario_name, scenario_name)
+        
+        fx_data.append({
+            'Сценарий': scenario_display,
+            'Сейчас': f"{rates[0]:.2f}",
+            'Год 1': f"{rates[1]:.2f}",
+            'Год 2': f"{rates[2]:.2f}",
+            'Год 3': f"{rates[3]:.2f}",
+            'Год 4': f"{rates[4]:.2f}",
+            'Год 5': f"{rates[5]:.2f}"
+        })
+    
+    df_fx = pd.DataFrame(fx_data)
+    st.dataframe(df_fx, use_container_width=True, hide_index=True)
+    
+    # FX chart
+    fx_chart_data = []
+    for scenario_name, rates in optimizer.fx_scenarios.items():
+        scenario_display = {'base': 'Базовый', 'pessimistic': 'Пессимистичный', 'optimistic': 'Оптимистичный'}.get(scenario_name, scenario_name)
+        for year, rate in enumerate(rates):
+            fx_chart_data.append({
+                'Год': year,
+                'Курс (руб/$)': rate,
+                'Сценарий': scenario_display
+            })
+    
+    df_fx_chart = pd.DataFrame(fx_chart_data)
+    fig_fx = px.line(
+        df_fx_chart,
+        x='Год',
+        y='Курс (руб/$)',
+        color='Сценарий',
+        title='Прогноз курса USD/RUB',
+        markers=True
+    )
+    st.plotly_chart(fig_fx, use_container_width=True)
+    
+    st.divider()
+    
+    # Structured Bond Coupons
+    st.subheader("3️⃣ Купоны структурной облигации (SBERBCMI)")
+    
+    if 'Структурная облигация Сбер' in optimizer.instruments:
+        struct_bond = optimizer.instruments['Структурная облигация Сбер']
+        
+        if 'coupon_forecast' in struct_bond:
+            coupons = struct_bond['coupon_forecast']
+            
+            months = [
+                'Ноябрь 2025', 'Декабрь 2025', 'Январь 2026', 'Февраль 2026',
+                'Март 2026', 'Апрель 2026', 'Май 2026', 'Июнь 2026',
+                'Июль 2026', 'Август 2026', 'Сентябрь 2026', 'Октябрь 2026'
+            ]
+            
+            coupon_data = []
+            cumulative = 0
+            for i, (month, coupon) in enumerate(zip(months, coupons), 1):
+                cumulative += coupon
+                coupon_data.append({
+                    '№': i,
+                    'Месяц': month,
+                    'Купон': f"{coupon:.2f}%",
+                    'Накопительно': f"{cumulative:.2f}%"
+                })
+            
+            df_coupons = pd.DataFrame(coupon_data)
+            st.dataframe(df_coupons, use_container_width=True, hide_index=True)
+            
+            # Coupon bar chart
+            fig_coupons = px.bar(
+                df_coupons,
+                x='Месяц',
+                y=[float(c.rstrip('%')) for c in df_coupons['Купон']],
+                title='Месячные купоны структурной облигации',
+                labels={'y': 'Купон (%)'},
+                color=[float(c.rstrip('%')) for c in df_coupons['Купон']],
+                color_continuous_scale='Greens'
+            )
+            fig_coupons.update_xaxes(tickangle=45)
+            st.plotly_chart(fig_coupons, use_container_width=True)
+            
+            # Statistics
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Средний купон", f"{sum(coupons)/len(coupons):.2f}%/мес")
+            with col2:
+                st.metric("Минимум", f"{min(coupons):.2f}%")
+            with col3:
+                st.metric("Максимум", f"{max(coupons):.2f}%")
+            with col4:
+                st.metric("Годовой доход", f"{sum(coupons):.2f}%")
+            
+            st.success("📊 Источник: SBERBCMI Index (https://indices.sberbank-cib.com/?indexid=SBERBCMI)")
+        else:
+            st.warning("Прогноз купонов не загружен")
+    else:
+        st.info("Структурная облигация не включена в портфель")
+    
+    st.divider()
+    st.info("💡 Обновляйте прогнозы ежеквартально в файле `forecasts_config.yaml`, затем выполните `git push`")
 
 # Footer
 st.divider()
