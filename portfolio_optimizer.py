@@ -132,6 +132,11 @@ class DynamicPortfolioOptimizer:
             cbr_rate = self.cbr_scenarios[scenario][min(year, len(self.cbr_scenarios[scenario])-1)]
             base_yield = cbr_rate - 0.5  # Ставка ЦБ - 0.5%
         
+        # Корректировка для инструментов, привязанных к RUONIA (overnight rate)
+        if instrument_data.get('ruonia_linked', False):
+            cbr_rate = self.cbr_scenarios[scenario][min(year, len(self.cbr_scenarios[scenario])-1)]
+            base_yield = cbr_rate - 1.0  # RUONIA ≈ Ставка ЦБ - 1.0%
+        
         # Налоговая корректировка
         if instrument_data['tax_free']:
             after_tax = base_yield
